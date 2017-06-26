@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+
+
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+  <meta name="author" content="">
+
+  <title>
+
+    Dedication app &middot;
+
+  </title>
+
+  <link href="http://fonts.googleapis.com/css?family=Roboto:300,400,500,700,400italic" rel="stylesheet">
+  <link href="public/assets/css/toolkit-inverse.css" rel="stylesheet">
+  <link href="public/assets/css/application.css" rel="stylesheet">
+  <link href="public/assets/css/custom.css" rel="stylesheet">
+
+  <style>
+    /* note: this is a hack for ios iframe for bootstrap themes shopify page */
+    /* this chunk of css is not part of the toolkit :) */
+
+    body {
+      width: 1px;
+      min-width: 100%;
+      *width: 100%;
+    }
+  </style>
+</head>
+
+
+<body>
+  <div class="container">
+    <div class="table-full">
+      <div class="table-responsive">
+        <table id="dedication-table" class="table" data-sort="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Dedication Items</th>
+            </tr>
+          </thead>
+          <tbody id="dedication-items">
+            <td>0</td>
+            <td>Break</td>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <nav class="navbar navbar-fixed-bottom">
+    <div class="container flextable">
+      <div class="flextable-item flextable-primary">
+        <input id="dedication-input" type="text" class="form-control" placeholder="Dedication item">
+      </div>
+      <div class="flextable-item">
+        <div class="btn-group">
+          <button id="add-to-list" type="button" class="btn btn-primary-outline">
+            <span class="icon icon-add-to-list"></span>
+        </button>
+          <button id="delete-input" type="button" class="btn btn-primary-outline">
+            <span class="icon icon-erase"></span>
+        </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+
+  <script>
+    if (typeof module === 'object') {
+      window.module = module;
+      module = undefined;
+    }
+  </script>
+  <script src="public/assets/js/jquery.min.js"></script>
+  <script src="public/assets/js/chart.js"></script>
+  <script src="public/assets/js/tablesorter.min.js"></script>
+  <script src="public/assets/js/toolkit.js"></script>
+  <script src="public/assets/js/application.js"></script>
+  <script>
+    if (window.module) module = window.module;
+  </script>
+
+  <script src="index.js"></script>
+
+  <script>
+    // execute/clear BS loaders for docs
+    $(function () {
+      while (window.BS && window.BS.loader && window.BS.loader.length) {
+        (window.BS.loader.pop())()
+      }
+    })
+  </script>
+</body>
+
+</html>
