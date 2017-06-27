@@ -1,3 +1,6 @@
+const ipc = require('electron').ipcRenderer;
+const xlsx = require('node-xlsx');
+
 $(document).ready(function() {
 
     let dedication = {count: 0, items: []}
@@ -16,6 +19,8 @@ $(document).ready(function() {
             $('#dedication-input').val('');
 
             $("#dedication-table").tablesorter();
+
+            ipc.send('receive-items', dedication.items)
         }
     });
 
@@ -31,6 +36,26 @@ $(document).ready(function() {
         }
     });
 
+    $("#path-file").click(function() {
+        ipc.send('open-file-dialog')
+    })
 
-    
+
+    $("#new-path-file").click(function() {
+        ipc.send('open-dir-dialog')
+    })
+
+    ipc.on('selected-file', function (event, data) {
+        const {files: path, file} = data
+        const excel = xlsx.parse(file);
+        
+
+        $("#path-file").val(path);
+    })
+
+    ipc.on('selected-directory', function (event, path) {
+        $("#new-path-file").val(path);
+    })
+
 });
+

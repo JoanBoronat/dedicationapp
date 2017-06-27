@@ -1,6 +1,13 @@
 const electron = require('electron')
+const ipc = require('electron').ipcMain
+const dialog = require('electron').dialog
+const fs = require('fs');
+const Notification = require('electron-native-notification');
+
+
 // Module to control application life.
 const app = electron.app
+const globalShortcut = electron.globalShortcut
 // Module to create native browser window.
 const BrowserWindow = electron.BrowserWindow
 
@@ -10,17 +17,23 @@ const url = require('url')
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let notification
+let dedication = {
+  current: 0,
+  items: []
+}
 
 function createWindow() {
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 800,
-    height: 600
+    height: 600,
+    icon: path.join(__dirname, 'public/images/logo-white.ico')
   })
 
   // and load the index.html of the app.
   mainWindow.loadURL(url.format({
-    pathname: path.join(__dirname, 'index.html'),
+    pathname: path.join(__dirname, 'public/index.html'),
     protocol: 'file:',
     slashes: true
   }))
@@ -34,7 +47,42 @@ function createWindow() {
     // in an array if your app supports multi windows, this is the time
     // when you should delete the corresponding element.
     mainWindow = null
+    app.exit(0);
   })
+
+  globalShortcut.register('F1', () => {
+
+    let {current: i, items} = dedication
+    if (notification) notification.close();
+
+    if (items.length == 0) {
+
+      const opt = {  
+        icon: path.join(__dirname, 'public/images/logo-white.ico'),
+        tag: "holaa",
+      };
+
+      notification = new Notification('You don\'t have any dedication items', opt);
+
+      notification.on('show', () => {});
+
+    } else {
+      i == items.length - 1 ? i = 0 : i++;
+      dedication.current = i
+
+      const opt = {
+        body: 'Press again to change',
+        silent: true,
+        icon: path.join(__dirname, 'logo-white.ico')
+      };
+
+      notification = new Notification('You are working on ' + items[i], opt);
+
+      notification.on('show', () => {});
+    }
+
+  })
+
 }
 
 // This method will be called when Electron has finished
@@ -61,3 +109,50 @@ app.on('activate', function () {
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
+
+ipc.on('open-file-dialog', function (event) {
+  dialog.showOpenDialog({
+    title: "Choose your existing dedication sheet",
+    properties: ['openFile'],
+    filters: [{
+      name: 'Excel',
+      extensions: ['xls', 'xlsx']
+    }],
+
+  }, function (files) {
+    if (files) {
+
+      const file = fs.readFileSync(files[0]);
+      event.sender.send('selected-file', {
+        files,
+        file
+      })
+    }
+
+  })
+})
+
+
+ipc.on('open-dir-dialog', function (event) {
+  dialog.showOpenDialog({
+    title: "Choose the directory to create the dedication sheet",
+    properties: ['openDirectory'],
+
+
+  }, function (files) {
+    if (files) {
+
+      fs.createReadStream(path.join(__dirname, 'dedication.xlsx')).pipe(fs.createWriteStream(files[0] + '/dedication.xlsx'));
+      event.sender.send('selected-directory', files[0])
+    }
+
+  })
+})
+
+
+ipc.on('receive-items', (event, arg) => {
+
+  dedication.current = 0;
+  dedication.items = arg;
+
+})
