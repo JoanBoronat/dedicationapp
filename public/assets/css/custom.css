@@ -4,3 +4,11 @@
     right: 0px;
     margin: 10px 40px;
 }
+
+body { 
+    overflow-x: hidden
+}
+
+#app {
+    position: relative
+}

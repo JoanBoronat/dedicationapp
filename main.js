@@ -32,11 +32,11 @@ function createWindow() {
   })
 
   // and load the index.html of the app.
-  mainWindow.loadURL(url.format({
+  mainWindow.loadURL("http://localhost:8080/"/*url.format({
     pathname: path.join(__dirname, 'public/index.html'),
     protocol: 'file:',
     slashes: true
-  }))
+  })*/)
 
   // Open the DevTools.
   //mainWindow.webContents.openDevTools()
@@ -59,7 +59,6 @@ function createWindow() {
 
       const opt = {  
         icon: path.join(__dirname, 'public/images/logo-white.ico'),
-        tag: "holaa",
       };
 
       notification = new Notification('You don\'t have any dedication items', opt);
@@ -142,8 +141,9 @@ ipc.on('open-dir-dialog', function (event) {
   }, function (files) {
     if (files) {
 
+      const file = fs.readFileSync(path.join(__dirname, 'dedication.xlsx'));
       fs.createReadStream(path.join(__dirname, 'dedication.xlsx')).pipe(fs.createWriteStream(files[0] + '/dedication.xlsx'));
-      event.sender.send('selected-directory', files[0])
+      event.sender.send('selected-directory', {files: path.join(files[0], 'dedication.xlsx'), file})
     }
 
   })

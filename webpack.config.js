@@ -41,5 +41,13 @@ module.exports = {
                                                                 mangle: false,
                                                                 sourcemap: false
                                                             }),
-    ]
+    ],
+    devServer: {
+        contentBase: path.join(__dirname, 'public'), // boolean | string | array, static file location
+        hot: true, // hot module replacement. Depends on HotModuleReplacementPlugin
+        https: false, // true for self-signed, object for cert authority
+        watchContentBase: true,
+        compress: true,
+        historyApiFallback: true,
+    }
 };

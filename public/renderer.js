@@ -45,17 +45,17 @@ $(document).ready(function() {
         ipc.send('open-dir-dialog')
     })
 
-    ipc.on('selected-file', function (event, data) {
+/*    ipc.on('selected-file', function (event, data) {
         const {files: path, file} = data
         const excel = xlsx.parse(file);
-        
+        console.log(excel)
 
         $("#path-file").val(path);
-    })
-
+    })*/
+/*
     ipc.on('selected-directory', function (event, path) {
         $("#new-path-file").val(path);
     })
-
+*/
 });
 
