@@ -10,7 +10,7 @@ export default class Header extends React.Component {
                     style={{
                     textAlign: "center"
                 }}>
-                    <h1>DEDICATION APP</h1>
+                    <h3>DEDICATION APP</h3>
                 </div>
             
         );

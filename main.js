@@ -3,7 +3,7 @@ const ipc = require('electron').ipcMain
 const dialog = require('electron').dialog
 const fs = require('fs');
 const Notification = require('electron-native-notification');
-
+const settings = require('electron-settings');
 
 // Module to control application life.
 const app = electron.app
@@ -19,68 +19,85 @@ const url = require('url')
 let mainWindow
 let notification
 let dedication = {
-  current: 0,
-  items: []
+	current: 0,
+	items: []
 }
 
 function createWindow() {
-  // Create the browser window.
-  mainWindow = new BrowserWindow({
-    width: 800,
-    height: 600,
-    icon: path.join(__dirname, 'public/images/logo-white.ico')
-  })
 
-  // and load the index.html of the app.
-  mainWindow.loadURL("http://localhost:8080/"/*url.format({
-    pathname: path.join(__dirname, 'public/index.html'),
-    protocol: 'file:',
-    slashes: true
-  })*/)
+	const {width, height} = settings.get('windowBounds')
+	width ? width : 800
+	height ? height : 600
+	// Create the browser window.
+	mainWindow = new BrowserWindow({
+		width,
+		height,
+		icon: path.join(__dirname, 'public/images/logo-white.ico')
+	})
 
-  // Open the DevTools.
-  //mainWindow.webContents.openDevTools()
+	// and load the index.html of the app.
+	mainWindow.loadURL("http://localhost:8080/"
+		/*url.format({
+				pathname: path.join(__dirname, 'public/index.html'),
+				protocol: 'file:',
+				slashes: true
+			})*/
+	)
 
-  // Emitted when the window is closed.
-  mainWindow.on('closed', function () {
-    // Dereference the window object, usually you would store windows
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    mainWindow = null
-    app.exit(0);
-  })
+	// Open the DevTools.
+	//mainWindow.webContents.openDevTools()
 
-  globalShortcut.register('F1', () => {
+	// Emitted when the window is closed.
+	mainWindow.on('closed', function () {
+		// Dereference the window object, usually you would store windows
+		// in an array if your app supports multi windows, this is the time
+		// when you should delete the corresponding element.
+		mainWindow = null
+		app.exit(0);
+	})
 
-    let {current: i, items} = dedication
-    if (notification) notification.close();
+	mainWindow.on('resize', () => {
+		// The event doesn't pass us the window size, so we call the `getBounds` method which returns an object with
+		// the height, width, and x and y coordinates.
+		let { width, height } = mainWindow.getBounds();
+		// Now that we have them, save them using the `set` method.
+		settings.set('windowBounds', { width, height });
+	});
 
-    if (items.length == 0) {
+	globalShortcut.register('F1', () => {
 
-      const opt = {  
-        icon: path.join(__dirname, 'public/images/logo-white.ico'),
-      };
+		let {
+			current: i,
+			items
+		} = dedication
+		if (notification) notification.close();
 
-      notification = new Notification('You don\'t have any dedication items', opt);
+		if (items.length == 0) {
 
-      notification.on('show', () => {});
+			const opt = {
+				icon: path.join(__dirname, 'public/images/logo-white.ico'),
+			};
 
-    } else {
-      i == items.length - 1 ? i = 0 : i++;
-      dedication.current = i
+			notification = new Notification('You don\'t have any dedication items', opt);
 
-      const opt = {
-        body: 'Press again to change',
-        silent: true,
-        icon: path.join(__dirname, 'logo-white.ico')
-      };
+			notification.on('show', () => {});
 
-      notification = new Notification('You are working on ' + items[i], opt);
+		} else {
+			i == items.length - 1 ? i = 0 : i++;
+			dedication.current = i
 
-      notification.on('show', () => {});
-    }
+			const opt = {
+				body: 'Press again to change',
+				silent: true,
+				icon: path.join(__dirname, 'public/images/logo-white.ico'),
+			};
 
-  })
+			notification = new Notification('You are working on ' + items[i], opt);
+
+			notification.on('show', () => {});
+		}
+
+	})
 
 }
 
@@ -91,68 +108,79 @@ app.on('ready', createWindow)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  // On OS X it is common for applications and their menu bar
-  // to stay active until the user quits explicitly with Cmd + Q
-  if (process.platform !== 'darwin') {
-    app.quit()
-  }
+	// On OS X it is common for applications and their menu bar
+	// to stay active until the user quits explicitly with Cmd + Q
+	if (process.platform !== 'darwin') {
+		app.quit()
+	}
 })
 
 app.on('activate', function () {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
-  if (mainWindow === null) {
-    createWindow()
-  }
+	// On OS X it's common to re-create a window in the app when the
+	// dock icon is clicked and there are no other windows open.
+	if (mainWindow === null) {
+		createWindow()
+	}
 })
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
 
 ipc.on('open-file-dialog', function (event) {
-  dialog.showOpenDialog({
-    title: "Choose your existing dedication sheet",
-    properties: ['openFile'],
-    filters: [{
-      name: 'Excel',
-      extensions: ['xls', 'xlsx']
-    }],
+	dialog.showOpenDialog({
+		title: "Choose your existing dedication sheet",
+		properties: ['openFile'],
+		filters: [{
+			name: 'Excel',
+			extensions: ['xls', 'xlsx']
+		}],
 
-  }, function (files) {
-    if (files) {
+	}, function (files) {
+		if (files) {
 
-      const file = fs.readFileSync(files[0]);
-      event.sender.send('selected-file', {
-        files,
-        file
-      })
-    }
+			settings.set('path-file', files[0]);
 
-  })
+			const file = fs.readFileSync(files[0]);
+			event.sender.send('selected-file', {
+				files,
+				file
+			})
+		}
+
+	})
 })
 
 
 ipc.on('open-dir-dialog', function (event) {
-  dialog.showOpenDialog({
-    title: "Choose the directory to create the dedication sheet",
-    properties: ['openDirectory'],
+	dialog.showOpenDialog({
+		title: "Choose the directory to create the dedication sheet",
+		properties: ['openDirectory'],
 
 
-  }, function (files) {
-    if (files) {
+	}, function (files) {
+		if (files) {
 
-      const file = fs.readFileSync(path.join(__dirname, 'dedication.xlsx'));
-      fs.createReadStream(path.join(__dirname, 'dedication.xlsx')).pipe(fs.createWriteStream(files[0] + '/dedication.xlsx'));
-      event.sender.send('selected-directory', {files: path.join(files[0], 'dedication.xlsx'), file})
-    }
+			settings.set('path-file', files[0]);
 
-  })
+			const file = fs.readFileSync(path.join(__dirname, 'dedication.xlsx'));
+			fs.createReadStream(path.join(__dirname, 'dedication.xlsx')).pipe(fs.createWriteStream(files[0] + '/dedication.xlsx'));
+			event.sender.send('selected-directory', {
+				files: path.join(files[0], 'dedication.xlsx'),
+				file
+			})
+		}
+
+	})
 })
 
 
 ipc.on('receive-items', (event, arg) => {
+	dedication.current = 0;
+	dedication.items = arg;
+})
 
-  dedication.current = 0;
-  dedication.items = arg;
-
+ipc.on('get-file', (event) => {
+	const files = settings.get("path-file")
+	const file = files ? fs.readFileSync(files) : null;
+	event.sender.send('get-file', { files, file })
 })

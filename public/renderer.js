@@ -25,25 +25,25 @@ $(document).ready(function() {
     });
 
 
-    $('#delete-input').click(function() {
+/*    $('#delete-input').click(function() {
         $('#dedication-input').val('');
     });
+*/
 
-
-    $("#dedication-input").keyup(function(event){
+ /*   $("#dedication-input").keyup(function(event){
         if(event.keyCode == 13){
             $("#add-to-list").click();
         }
-    });
+    });*/
 
-    $("#path-file").click(function() {
+/*    $("#path-file").click(function() {
         ipc.send('open-file-dialog')
-    })
+    })*/
 
 
-    $("#new-path-file").click(function() {
+/*    $("#new-path-file").click(function() {
         ipc.send('open-dir-dialog')
-    })
+    })*/
 
 /*    ipc.on('selected-file', function (event, data) {
         const {files: path, file} = data
