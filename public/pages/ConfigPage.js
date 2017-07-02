@@ -34,7 +34,7 @@ export default class ConfigPage extends React.Component {
 
     render() {
         return (
-            <div>
+            <div class="m-t">
                 <SelectFileButtons path={this.props.path}/>            
                 <div class="hr-divider m-t m-b">
                     <h3 class="hr-divider-content hr-divider-heading">{this.props.data.length > 0 ? "PREVIEW" : ""}</h3>
