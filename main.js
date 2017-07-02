@@ -179,8 +179,9 @@ ipc.on('receive-items', (event, arg) => {
 	dedication.items = arg;
 })
 
-ipc.on('get-file', (event) => {
+ipc.on('get-settings', (event) => {
 	const files = settings.get("path-file")
+	const currentPage = "/stats"
 	const file = files ? fs.readFileSync(files) : null;
-	event.sender.send('get-file', { files, file })
+	event.sender.send('get-settings', { files, file, currentPage })
 })

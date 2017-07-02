@@ -4,59 +4,43 @@ import Table from '../reactComponents/Table.js'
 import Nav from '../reactComponents/Nav.js'
 
 export default class ConfigPage extends React.Component {
-    
-    constructor() {
-        super()
 
-        this.state = {
-            data: []
-        }
-        
+    constructor(props) {
+        super(props)
     }
 
-    componentDidMount() {
+    getCount(data) {
 
-        var _self = this;
+        let headers = data.slice(0,1)[0]
+        headers = headers ? headers.slice(0,2) : []
 
-        ipc.send('get-file')
+        const [keys,values] = data.slice(1).reduce((last, now) => {
+            var index = last[0].indexOf(now[0])
 
-        ipc.on('get-file', function (event, data) {
-            const {files: path, file} = data
-            const excel = xlsx.parse(file);
-            _self.setState({path, data: excel[0].data})
-        })
+            if (index == -1) {
+                last[0].push(now[0])
+                last[1].push(now[1])
+            } else {
+                last[1][index] += now[1]
+            }
 
-        ipc.on('selected-file', function (event, data) {
-            const {files: path, file} = data
-            const excel = xlsx.parse(file);
-            $("#path-file").val(path);
-            _self.setState({data: excel[0].data})
-        })
+            return last
 
-        ipc.on('selected-directory', function (event, data) {
-            const {files: path, file} = data
-            const excel = xlsx.parse(file);
-            $("#new-path-file").val(path);
-            _self.setState({data: excel[0].data})
-        })
+        }, [[],[]])
 
-    }
-
-    addToList(e) {
-        const data = this.state.data
-        data.push([e,0])
-        this.setState({data})
+        ipc.send('receive-items', keys)
+        return [headers, keys.map((x,i) => [x,values[i]])]
     }
 
     render() {
         return (
             <div>
-                <SelectFileButtons path={this.state.path}/>            
+                <SelectFileButtons path={this.props.path}/>            
                 <div class="hr-divider m-t m-b">
-                    <h3 class="hr-divider-content hr-divider-heading">{this.state.data.length > 0 ? "PREVIEW" : ""}</h3>
+                    <h3 class="hr-divider-content hr-divider-heading">{this.props.data.length > 0 ? "PREVIEW" : ""}</h3>
                 </div>
-                <Table data={this.state.data}/>
-                {this.state.data.length > 0 ? <Nav onClick={(e) => this.addToList(e)}/> : <div/>}            
+                <Table data={this.props.data} getCount={(data) => this.getCount(data)}/>
+                {this.props.data.length > 0 ? <Nav onClick={this.props.addToList}/> : <div/>}            
             </div>
         );
     }

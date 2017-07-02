@@ -7,7 +7,6 @@ export default class Table extends React.Component {
         this.state = {initialized: false};
     }
 
-
     componentDidMount() {
         $("#dedication-table").tablesorter();
     }
@@ -20,36 +19,17 @@ export default class Table extends React.Component {
         $('#dedication-table').trigger('update');
     }
 
-    getCount(data) {
-        const [keys,values] = data.slice(1).reduce((last, now) => {
-            var index = last[0].indexOf(now[0])
-
-            if (index == -1) {
-                last[0].push(now[0])
-                last[1].push(now[1])
-            } else {
-                last[1][index] += now[1]
-            }
-
-            return last
-
-        }, [[],[]])
-
-        ipc.send('receive-items', keys)
-        return keys.map((x,i) => [x,values[i]])
-    }
-
     render() {
 
-        let headers = this.props.data.slice(0,1).map((x) => (
-            x.slice(0,2).map((y,i) => (
+        let [headers, reg] = this.props.getCount(this.props.data)
+
+        headers = headers.map((y,i) => (
                 <th key={`th.${i}`}>{y}</th>
             ))
-        )) 
 
-        let reg = this.getCount(this.props.data).map((x,i) => (
+        reg = reg.map((x,i) => (
             <tr key={`tr.${i}`}> 
-                {x.slice(0,2).map((y,j) => 
+                {x.map((y,j) => 
                     <td key={`td.${i}.${j}`}>{y}</td>    
                 )} 
             </tr>
