@@ -18,7 +18,6 @@ export default class StatsPage extends React.Component {
         super(props)
 
         this.state = {
-            data: [],
             filter: (x) => { 
                 const [monday,sunday] = this.getWeek()
                 const d = new Date(this.toDate(x[2]))
@@ -101,12 +100,6 @@ export default class StatsPage extends React.Component {
         return result.sort((a, b) => b["Number of hours dedicated"] - a["Number of hours dedicated"])
     }
 
-    componentDidMount() {
-        this.setState({
-            data: this.formatDataToJSON(...this.mapReduce(this.props.data))
-        })
-    }
-
     render() {
 
         return (
@@ -114,7 +107,7 @@ export default class StatsPage extends React.Component {
                 <div class="m-t-md m-b-md">
                     <ResponsiveContainer width="100%" height={400}>
                         <BarChart
-                            data={this.state.data}
+                            data={this.formatDataToJSON(...this.mapReduce(this.props.data))}
                             margin={{
                             top: 5,
                             right: 30,
