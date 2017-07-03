@@ -14,89 +14,123 @@ import Table from '../reactComponents/Table.js'
 
 export default class StatsPage extends React.Component {
 
-    getJsDateFromExcel(excelDate) {
-        return new Date((excelDate - (25567 + 1)) * 86400 * 1000);
+    constructor(props) {
+        super(props)
+
+        this.state = {
+            data: [],
+            filter: (x) => { 
+                const [monday,sunday] = this.getWeek()
+                const d = new Date(this.toDate(x[2]))
+                return d >= monday && d >= sunday
+            }
+        }
     }
 
     getCount(data) {
 
         let headers = data.slice(0, 1)
         const result = data
-            .slice(1)
-            .slice(-10);
+            .slice(1).filter(this.state.filter)
 
         headers = headers[0]
             ? headers[0]
             : []
 
-        result.map((x) => {
-            x[2] = this
-                .getJsDateFromExcel(x[2])
-                .toLocaleDateString()
-            x[3] = this
-                .getJsDateFromExcel(x[3])
-                .toLocaleDateString()
-        })
-
         return [headers, result]
     }
 
-    render() {
+    getWeek(d) {
+        d = new Date();
+        d.setHours(0,0,0,0)
+        var day = d.getDay(),
+            diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
+        return [new Date(d.setDate(diff)), new Date(d.setDate(diff + 6))]
+    }
 
-        const data = [
-            {
-                name: 'Page A',
-                uv: 4000,
-                pv: 2400,
-                amt: 2400
-            }, {
-                name: 'Page B',
-                uv: 3000,
-                pv: 1398,
-                amt: 2210
-            }, {
-                name: 'Page C',
-                uv: 2000,
-                pv: 9800,
-                amt: 2290
-            }, {
-                name: 'Page D',
-                uv: 2780,
-                pv: 3908,
-                amt: 2000
-            }, {
-                name: 'Page E',
-                uv: 1890,
-                pv: 4800,
-                amt: 2181
-            }, {
-                name: 'Page F',
-                uv: 2390,
-                pv: 3800,
-                amt: 2500
-            }, {
-                name: 'Page G',
-                uv: 3490,
-                pv: 4300,
-                amt: 2100
-            }
-        ];
+    toDate(dateStr) {
+        const [day, month, year] = dateStr.split("/")
+        return new Date(year, month - 1, day)
+    }
+
+    mapReduce(data) {
+
+        let headers = data.slice(0, 1)[0]
+        headers = headers
+            ? headers.slice(0, 2)
+            : []
+
+        const [keys,
+            values] = data
+            .slice(1)
+            .filter(this.state.filter)
+            .reduce((last, now) => {
+                var index = last[0].indexOf(now[0])
+
+                if (index == -1) {
+                    last[0].push(now[0])
+                    last[1].push(now[1])
+                } else {
+                    last[1][index] += now[1]
+                }
+
+                return last
+
+            }, [
+                [], []
+            ])
+
+        ipc.send('receive-items', keys)
+        return [
+            headers, keys.map((x, i) => [x, values[i]])
+        ]
+    }
+
+    formatDataToJSON(headers, data) {
+
+        let result = []
+
+        data.map((x) => {
+            let tmp = {}
+            x.map((e, i) => {
+                tmp[headers[i]] = e
+            })
+            result.push(tmp)
+        })
+
+        return result.sort((a, b) => b["Number of hours dedicated"] - a["Number of hours dedicated"])
+    }
+
+    componentDidMount() {
+        this.setState({
+            data: this.formatDataToJSON(...this.mapReduce(this.props.data))
+        })
+    }
+
+    render() {
 
         return (
             <div>
                 <div class="m-t-md m-b-md">
                     <ResponsiveContainer width="100%" height={400}>
                         <BarChart
-                            data={data}
+                            data={this.state.data}
                             margin={{
                             top: 5,
                             right: 30,
                             left: 20,
                             bottom: 5
                         }}>
-                            <XAxis dataKey="name" tick={{stroke: "lightgrey"}}/>
-                            <YAxis tick={{stroke: "lightgrey"}}/>
-                            <Bar dataKey="uv" fill="#1bc98e"/>
+                            <XAxis
+                                dataKey="Dedication Item"
+                                tick={{
+                                stroke: "lightgrey"
+                            }}/>
+                            <YAxis
+                                tick={{
+                                stroke: "lightgrey"
+                            }}/>
+                            <Bar dataKey="Number of hours dedicated" fill="#1bc98e"/>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>

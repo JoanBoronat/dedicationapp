@@ -20,9 +20,13 @@ export default class Layout extends React.Component {
         this.state = {
             data: [],
             path: null,
-            currentPage: "/"
+            currentPage: ipc.sendSync('current-page') || "/" 
         }
         
+    }
+
+    getJsDateFromExcel(excelDate) {
+        return new Date((excelDate - (25567 + 1)) * 86400 * 1000);
     }
 
     componentDidMount() {
@@ -35,6 +39,10 @@ export default class Layout extends React.Component {
             const {files: path, file, currentPage} = data
             const excel = xlsx.parse(file);
             <Redirect to={currentPage} />
+            excel[0].data.slice(1).map((x) => {
+                x[2] = _self.getJsDateFromExcel(x[2]).toLocaleDateString()
+                x[3] = _self.getJsDateFromExcel(x[3]).toLocaleDateString()
+            })
             _self.setState({path, data: excel[0].data, currentPage})
         })
 
@@ -61,18 +69,24 @@ export default class Layout extends React.Component {
     }
     
     render () {
+
         return ( 
             <Router>
                 <div class="container">
-                    <Redirect to="/"/>
+                    <Redirect to={this.state.currentPage}/>
                     <Header />
-                    <Route exact path="/" render={() => (
-                        <ConfigPage data={this.state.data} path={this.state.path} addToList={(e) => this.addToList(e)} />
-                    )}/>
-                    <Route path="/stats" render={() => (
-                        <StatsPage data={this.state.data}/>
-                    )}/>
-                    <Route path="/help" component={HelpPage}/>
+                    <Route exact path="/" render={() => {
+                        ipc.send('current-page', "/")
+                        return <ConfigPage data={this.state.data} path={this.state.path} addToList={(e) => this.addToList(e)} />
+                    }}/>
+                    <Route path="/stats" render={() => {
+                        ipc.send('current-page', "/stats")
+                        return <StatsPage data={this.state.data} keyHeader={"Number of hours dedicated"}/>
+                    }}/>
+                    <Route path="/help" render={() => {
+                        ipc.send('current-page', "/help")
+                        return <HelpPage />
+                    }} />
                 </div>
             </Router> 
         );

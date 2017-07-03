@@ -185,3 +185,8 @@ ipc.on('get-settings', (event) => {
 	const file = files ? fs.readFileSync(files) : null;
 	event.sender.send('get-settings', { files, file, currentPage })
 })
+
+ipc.on('current-page', (event, arg) => {
+	if (arg) settings.set("currentPage", arg);
+	else event.returnValue = settings.get("currentPage")
+})
