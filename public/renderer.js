@@ -3,7 +3,12 @@ const xlsx = require('node-xlsx');
 
 $(document).ready(function() {
 
-/*    let dedication = {count: 0, items: []}
-*/
+    $(".custom-btn").click(function() {
+        console.log("this")
+       $(".custom-btn").removeClass("active")
+       $(this).addClass("active")
+    })
+    
+
 });
 

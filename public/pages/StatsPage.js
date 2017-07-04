@@ -11,6 +11,7 @@ import {
 } from "Recharts";
 
 import Table from '../reactComponents/Table.js'
+import DateHandler from '../reactComponents/DateHandler.js'
 
 export default class StatsPage extends React.Component {
 
@@ -18,11 +19,7 @@ export default class StatsPage extends React.Component {
         super(props)
 
         this.state = {
-            filter: (x) => { 
-                const [monday,sunday] = this.getWeek()
-                const d = new Date(this.toDate(x[2]))
-                return d >= monday && d >= sunday
-            }
+            filter: (x) => { return true }
         }
     }
 
@@ -37,19 +34,6 @@ export default class StatsPage extends React.Component {
             : []
 
         return [headers, result]
-    }
-
-    getWeek(d) {
-        d = new Date();
-        d.setHours(0,0,0,0)
-        var day = d.getDay(),
-            diff = d.getDate() - day + (day == 0 ? -6:1); // adjust when day is sunday
-        return [new Date(d.setDate(diff)), new Date(d.setDate(diff + 6))]
-    }
-
-    toDate(dateStr) {
-        const [day, month, year] = dateStr.split("/")
-        return new Date(year, month - 1, day)
     }
 
     mapReduce(data) {
@@ -100,11 +84,22 @@ export default class StatsPage extends React.Component {
         return result.sort((a, b) => b["Number of hours dedicated"] - a["Number of hours dedicated"])
     }
 
+    setFilter(filter) {
+        this.setState({filter})
+    }
+
     render() {
 
         return (
             <div>
                 <div class="m-t-md m-b-md">
+
+                    <div class="hr-divider m-t">
+                        <h3 class="hr-divider-content hr-divider-heading">AGGREGATE</h3>
+                    </div>
+
+                    <DateHandler filterHandler={(filter) => this.setFilter(filter)}/>
+
                     <ResponsiveContainer width="100%" height={400}>
                         <BarChart
                             data={this.formatDataToJSON(...this.mapReduce(this.props.data))}
@@ -129,7 +124,7 @@ export default class StatsPage extends React.Component {
                 </div>
 
                 <div class="hr-divider m-t m-b">
-                    <h3 class="hr-divider-content hr-divider-heading">LAST DEDICATIONS</h3>
+                    <h3 class="hr-divider-content hr-divider-heading">DEDICATIONS</h3>
                 </div>
 
                 <div>
