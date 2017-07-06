@@ -39,7 +39,7 @@ export default class ConfigPage extends React.Component {
                 <div class="hr-divider m-t m-b">
                     <h3 class="hr-divider-content hr-divider-heading">{this.props.data.length > 0 ? "PREVIEW" : ""}</h3>
                 </div>
-                <Table data={this.props.data} getCount={(data) => this.getCount(data)}/>
+                <Table data={this.props.data} getCount={(data) => this.getCount(data)} elementSelectable={true}/>
                 {this.props.data.length > 0 ? <Nav onClick={this.props.addToList}/> : <div/>}            
             </div>
         );

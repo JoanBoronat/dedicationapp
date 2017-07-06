@@ -20,7 +20,8 @@ export default class Layout extends React.Component {
         this.state = {
             data: [],
             path: null,
-            currentPage: ipc.sendSync('current-page') || "/" 
+            currentPage: ipc.sendSync('current-page') || "/",
+            dedicating: -1
         }
         
     }
@@ -74,7 +75,7 @@ export default class Layout extends React.Component {
             <Router>
                 <div class="container">
                     <Redirect to={this.state.currentPage}/>
-                    <Header />
+                    <Header dedicating={this.state.dedicating} />
                     <Route exact path="/" render={() => {
                         ipc.send('current-page', "/")
                         return <ConfigPage data={this.state.data} path={this.state.path} addToList={(e) => this.addToList(e)} />

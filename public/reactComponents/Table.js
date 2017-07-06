@@ -1,10 +1,14 @@
 import React from "react";
 
 export default class Table extends React.Component {
-    
+
     constructor(props) {
         super(props);
-        this.state = {initialized: false};
+        this.state = {
+            initialized: false,
+        };
+        if (this.props.elementSelectable)
+            this.state.activeItem = -1
     }
 
     componentDidMount() {
@@ -19,19 +23,27 @@ export default class Table extends React.Component {
         $('#dedication-table').trigger('update');
     }
 
+    handleClick(i) {
+        this.setState({activeItem: i})
+    }
+
     render() {
 
-        let [headers, reg] = this.props.getCount(this.props.data)
+        let [headers,
+            reg] = this
+            .props
+            .getCount(this.props.data)
 
-        headers = headers.map((y,i) => (
-                <th key={`th.${i}`}>{y}</th>
-            ))
+        headers = headers.map((y, i) => (
+            <th key={`th.${i}`}>{y}</th>
+        ))
 
-        reg = reg.map((x,i) => (
-            <tr key={`tr.${i}`}> 
-                {x.map((y,j) => 
-                    <td key={`td.${i}.${j}`}>{y}</td>    
-                )} 
+        reg = reg.map((x, i) => (
+            <tr
+                class={"table-element-active" + (this.state.activeItem == i ? " table-element-selected" : "")}
+                key={`tr.${i}`}
+                onClick={this.state.activeItem ? () => this.handleClick(i) : null}>
+                {x.map((y, j) => <td key={`td.${i}.${j}`}>{y}</td>)}
             </tr>
         ))
 
@@ -44,9 +56,13 @@ export default class Table extends React.Component {
             marginBottom: "15px"
         }
 
-        return  ( 
-            
-            <div class="row" style={this.props.data.length > 0 ? style : {}}>
+        return (
+
+            <div
+                class="row"
+                style={this.props.data.length > 0
+                ? style
+                : {}}>
                 <div class="table-full col-md-12">
                     <div class="table-responsive">
                         <table id="dedication-table" class="table" data-sort="table">
@@ -62,7 +78,7 @@ export default class Table extends React.Component {
                     </div>
                 </div>
             </div>
-            
+
         );
     }
 }

@@ -12,3 +12,12 @@ body {
 #app {
     position: relative
 }
+
+.table-element-active:hover {
+    background-color: #434857
+}
+
+.table-element-selected {
+    background-color: #353844;
+    color: rgb(25, 151, 198)
+}

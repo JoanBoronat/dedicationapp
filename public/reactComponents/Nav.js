@@ -30,7 +30,8 @@ export default class Nav extends React.Component {
                             id="dedication-input"
                             type="text"
                             class="form-control"
-                            placeholder="Dedication item"/>
+                            placeholder="Dedication item"
+                            />
                     </div>
                     <div class="flextable-item">
                         <div class="btn-group">

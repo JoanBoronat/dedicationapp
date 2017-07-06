@@ -92,11 +92,7 @@ export default class StatsPage extends React.Component {
 
         return (
             <div>
-                <div class="m-t-md m-b-md">
-
-                    <div class="hr-divider m-t">
-                        <h3 class="hr-divider-content hr-divider-heading">AGGREGATE</h3>
-                    </div>
+                <div class="m-b-md">
 
                     <DateHandler filterHandler={(filter) => this.setFilter(filter)}/>
 
@@ -119,6 +115,7 @@ export default class StatsPage extends React.Component {
                                 stroke: "lightgrey"
                             }}/>
                             <Bar dataKey="Number of hours dedicated" fill="#1bc98e"/>
+                            <Legend verticalAlign="top" align="right" iconType="circle" height={36}/>
                         </BarChart>
                     </ResponsiveContainer>
                 </div>
