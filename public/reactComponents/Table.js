@@ -7,8 +7,6 @@ export default class Table extends React.Component {
         this.state = {
             initialized: false,
         };
-        if (this.props.elementSelectable)
-            this.state.activeItem = -1
     }
 
     componentDidMount() {
@@ -25,6 +23,7 @@ export default class Table extends React.Component {
 
     handleClick(i) {
         this.setState({activeItem: i})
+        this.props.setDedicationItem(i)
     }
 
     render() {
@@ -40,9 +39,9 @@ export default class Table extends React.Component {
 
         reg = reg.map((x, i) => (
             <tr
-                class={"table-element-active" + (this.state.activeItem == i ? " table-element-selected" : "")}
+                class={"table-element-active" + (this.props.dedicationItem == i ? " table-element-selected" : "")}
                 key={`tr.${i}`}
-                onClick={this.state.activeItem ? () => this.handleClick(i) : null}>
+                onClick={this.props.elementSelectable ? () => this.handleClick(i) : null}>
                 {x.map((y, j) => <td key={`td.${i}.${j}`}>{y}</td>)}
             </tr>
         ))

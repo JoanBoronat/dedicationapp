@@ -66,36 +66,15 @@ function createWindow() {
 
 	globalShortcut.register('F1', () => {
 
-		let {
-			current: i,
-			items
-		} = dedication
 		if (notification) notification.close();
 
-		if (items.length == 0) {
+		mainWindow.webContents.send('keyEvent');
 
-			const opt = {
-				icon: path.join(__dirname, 'public/images/logo-white.ico'),
-			};
+	})
 
-			notification = new Notification('You don\'t have any dedication items', opt);
+	globalShortcut.register('F2', () => {
 
-			notification.on('show', () => {});
-
-		} else {
-			i == items.length - 1 ? i = 0 : i++;
-			dedication.current = i
-
-			const opt = {
-				body: 'Press again to change',
-				silent: true,
-				icon: path.join(__dirname, 'public/images/logo-white.ico'),
-			};
-
-			notification = new Notification('You are working on ' + items[i], opt);
-
-			notification.on('show', () => {});
-		}
+		mainWindow.webContents.send('startStopDedicating');
 
 	})
 

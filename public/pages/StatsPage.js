@@ -63,7 +63,6 @@ export default class StatsPage extends React.Component {
                 [], []
             ])
 
-        ipc.send('receive-items', keys)
         return [
             headers, keys.map((x, i) => [x, values[i]])
         ]
