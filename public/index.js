@@ -25,7 +25,7 @@ export default class Layout extends React.Component {
             dedicating: false,
             dedicationItem: 0,
             currentDedicationTime: 0,
-            items: ["asdf", "asfasf", "sadfaf"]
+            items: []
         }
 
     }
@@ -34,59 +34,82 @@ export default class Layout extends React.Component {
         return new Date((excelDate - (25567 + 1)) * 86400 * 1000);
     }
 
+    processData(excel) {
+
+        let {data} = excel[0]
+
+        data.slice(1).map((x) => {
+                    x[2] = this
+                        .getJsDateFromExcel(x[2])
+                        .toLocaleDateString()
+                    x[3] = this
+                        .getJsDateFromExcel(x[3])
+                        .toLocaleDateString()
+            })
+
+        const keys = data.slice(1).reduce((last, now) => {
+
+                var index = last.indexOf(now[0])
+
+                if (index == -1) last.push(now[0])
+                
+                return last
+
+            }, [])
+
+        this.setState({items: keys})
+        
+    
+    }
+
     componentDidMount() {
 
-        var _self = this;
 
         ipc.send('get-settings')
 
-        ipc.on('keyEvent', function() {
+        ipc.on('keyEvent', () => {
 
-            const {dedicationItem: x, items} = _self.state
+            const {dedicationItem: x, items} = this.state
             let i = (x == items.length - 1 ? 0 : x + 1)
-
-            _self.setState({dedicationItem: i, dedicating: false})
+            
+            this.setState({dedicationItem: i, dedicating: false})
         })
 
         ipc.on('startStopDedicating', () => {
             this.setState({dedicating: !this.state.dedicating})
         })
 
-        ipc.on('get-settings', function (event, data) {
+        ipc.on('get-settings', (event, data) => {
             const {files: path, file, currentPage} = data
             const excel = xlsx.parse(file);
             <Redirect to = {currentPage} /> 
-            excel[0].data.slice(1).map((x) => {
-                    x[2] = _self
-                        .getJsDateFromExcel(x[2])
-                        .toLocaleDateString()
-                    x[3] = _self
-                        .getJsDateFromExcel(x[3])
-                        .toLocaleDateString()
-            })
-            _self.setState({path, data: excel[0].data, currentPage})
+            this.processData(excel)
+            this.setState({path, data: excel[0].data, currentPage})
         })
 
-        ipc.on('selected-file', function (event, data) {
+        ipc.on('selected-file', (event, data) => {
             const {files: path, file} = data
             const excel = xlsx.parse(file);
+            this.processData(excel)
             $("#path-file").val(path);
-            _self.setState({data: excel[0].data})
+            this.setState({data: excel[0].data})
         })
 
-        ipc.on('selected-directory', function (event, data) {
+        ipc.on('selected-directory', (event, data) => {
             const {files: path, file} = data
             const excel = xlsx.parse(file);
+            this.processData(excel)
             $("#new-path-file").val(path);
-            _self.setState({data: excel[0].data})
+            this.setState({data: excel[0].data})
         })
 
     }
 
     addToList(e) {
-        const data = this.state.data
+        const {data, items} = this.state
         data.push([e, 0])
-        this.setState({data})
+        items.push(e)
+        this.setState({data, items})
     }
 
     setDedicationItem(dedicationItem) {
@@ -105,7 +128,7 @@ export default class Layout extends React.Component {
                     <Redirect to={this.state.currentPage}/>
                     <Header
                         dedicating={this.state.dedicating}
-                        dedicationItem={this.state.dedicationItem}
+                        dedicationItem={this.state.items[this.state.dedicationItem]}
                         currentDedicationTime={this.state.currentDedicationTime}
                         startStopDedication={(e) => this.startStopDedication(e)}/>
                     <Route

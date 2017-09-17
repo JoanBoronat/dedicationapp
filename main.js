@@ -152,12 +152,6 @@ ipc.on('open-dir-dialog', function (event) {
 	})
 })
 
-
-ipc.on('receive-items', (event, arg) => {
-	dedication.current = 0;
-	dedication.items = arg;
-})
-
 ipc.on('get-settings', (event) => {
 	const files = settings.get("path-file")
 	const currentPage = "/stats"
